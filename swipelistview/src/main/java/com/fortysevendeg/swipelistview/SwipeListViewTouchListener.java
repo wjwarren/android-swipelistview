@@ -104,6 +104,9 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
     private int oldSwipeActionRight;
     private int oldSwipeActionLeft;
 
+    private boolean isFirstItem = false;
+    private boolean isLastItem = false;
+
     /**
      * Constructor
      *
@@ -174,10 +177,24 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
     }
 
     /**
+     * @return {@link SwipeListView} - The current ListView.
+     */
+    protected SwipeListView getSwipeListView() {
+        return swipeListView;
+    }
+
+    /**
      * @return true if the list is in motion
      */
     public boolean isListViewMoving() {
         return listViewMoving;
+    }
+
+    /**
+     * @return boolean - Whether or not the item is horizontally moving.
+     */
+    protected boolean isSwiping() {
+        return swiping;
     }
 
     /**
@@ -645,64 +662,84 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
     }
 
     /**
-     * Return ScrollListener for ListView
+     * Called when the scrolling state has changed.
+     * @param absListView {@link AbsListView} - The view whose scroll state is being reported.
+     * @param scrollState int - The current scroll state.
+     */
+    protected void scrollStateChangeHandler(AbsListView absListView, int scrollState) {
+        setEnabled(scrollState != AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL);
+        if (swipeClosesAllItemsWhenListMoves && scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+            closeOpenedItems();
+        }
+        if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+            listViewMoving = true;
+            setEnabled(false);
+        }
+        if (scrollState != AbsListView.OnScrollListener.SCROLL_STATE_FLING
+                && scrollState != AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+
+            listViewMoving = false;
+            downPosition = ListView.INVALID_POSITION;
+            swipeListView.resetScrolling();
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    setEnabled(true);
+                }
+            }, 500);
+        }
+    }
+
+    /**
+     * Called when ...
+     *
+     * @param view {@link AbsListView} - The view whose scroll state is being reported
+     * @param firstVisibleItem int - The index of the first visible cell (ignore if visibleItemCount == 0)
+     * @param visibleItemCount int - The number of visible cells
+     * @param totalItemCount int - The number of items in the list adaptor
+     */
+    protected void scrollHandler(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        if (isFirstItem) {
+            boolean onSecondItemList = firstVisibleItem == 1;
+            if (onSecondItemList) {
+                isFirstItem = false;
+            }
+        } else {
+            boolean onFirstItemList = firstVisibleItem == 0;
+            if (onFirstItemList) {
+                isFirstItem = true;
+                swipeListView.onFirstListItem();
+            }
+        }
+        if (isLastItem) {
+            boolean onBeforeLastItemList = firstVisibleItem + visibleItemCount == totalItemCount - 1;
+            if (onBeforeLastItemList) {
+                isLastItem = false;
+            }
+        } else {
+            boolean onLastItemList = firstVisibleItem + visibleItemCount >= totalItemCount;
+            if (onLastItemList) {
+                isLastItem = true;
+                swipeListView.onLastListItem();
+            }
+        }
+    }
+
+    /**
+     * Return ScrollListener for ListView.
      *
      * @return OnScrollListener
      */
     public AbsListView.OnScrollListener makeScrollListener() {
         return new AbsListView.OnScrollListener() {
 
-            private boolean isFirstItem = false;
-            private boolean isLastItem = false;
-
             @Override
             public void onScrollStateChanged(AbsListView absListView, int scrollState) {
-                setEnabled(scrollState != AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL);
-                if (swipeClosesAllItemsWhenListMoves && scrollState == SCROLL_STATE_TOUCH_SCROLL) {
-                    closeOpenedItems();
-                }
-                if (scrollState == SCROLL_STATE_TOUCH_SCROLL) {
-                    listViewMoving = true;
-                    setEnabled(false);
-                }
-                if (scrollState != AbsListView.OnScrollListener.SCROLL_STATE_FLING && scrollState != SCROLL_STATE_TOUCH_SCROLL) {
-                    listViewMoving = false;
-                    downPosition = ListView.INVALID_POSITION;
-                    swipeListView.resetScrolling();
-                    new Handler().postDelayed(new Runnable() {
-                        public void run() {
-                            setEnabled(true);
-                        }
-                    }, 500);
-                }
+                scrollStateChangeHandler(absListView, scrollState);
             }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (isFirstItem) {
-                    boolean onSecondItemList = firstVisibleItem == 1;
-                    if (onSecondItemList) {
-                        isFirstItem = false;
-                    }
-                } else {
-                    boolean onFirstItemList = firstVisibleItem == 0;
-                    if (onFirstItemList) {
-                        isFirstItem = true;
-                        swipeListView.onFirstListItem();
-                    }
-                }
-                if (isLastItem) {
-                    boolean onBeforeLastItemList = firstVisibleItem + visibleItemCount == totalItemCount - 1;
-                    if (onBeforeLastItemList) {
-                        isLastItem = false;
-                    }
-                } else {
-                    boolean onLastItemList = firstVisibleItem + visibleItemCount >= totalItemCount;
-                    if (onLastItemList) {
-                        isLastItem = true;
-                        swipeListView.onLastListItem();
-                    }
-                }
+                scrollHandler(view, firstVisibleItem, visibleItemCount, totalItemCount);
             }
         };
     }

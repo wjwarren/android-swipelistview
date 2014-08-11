@@ -21,6 +21,7 @@ package com.fortysevendeg.swipelistview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
+import android.os.Build;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewConfigurationCompat;
 import android.util.AttributeSet;
@@ -42,7 +43,7 @@ public class SwipeListView extends ListView {
      * log tag
     */
     public final static String TAG = "SwipeListView";
-	
+
     /**
     * whether debug
     */
@@ -197,6 +198,7 @@ public class SwipeListView extends ListView {
             swipeOpenOnLongPress = styled.getBoolean(R.styleable.SwipeListView_swipeOpenOnLongPress, true);
             swipeAnimationTime = styled.getInteger(R.styleable.SwipeListView_swipeAnimationTime, 0);
             swipeCloseAllItemsWhenMoveList = styled.getBoolean(R.styleable.SwipeListView_swipeCloseAllItemsWhenMoveList, true);
+
             swipeDrawableChecked = styled.getResourceId(R.styleable.SwipeListView_swipeDrawableChecked, 0);
             swipeDrawableUnchecked = styled.getResourceId(R.styleable.SwipeListView_swipeDrawableUnchecked, 0);
             swipeFrontView = styled.getResourceId(R.styleable.SwipeListView_swipeFrontView, 0);
@@ -215,7 +217,7 @@ public class SwipeListView extends ListView {
 
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         touchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
-        touchListener = new SwipeListViewTouchListener(this, swipeFrontView, swipeBackView);
+        touchListener = createTouchListener(this, swipeFrontView, swipeBackView);
         if (swipeAnimationTime > 0) {
             touchListener.setAnimationTime(swipeAnimationTime);
         }
@@ -230,6 +232,23 @@ public class SwipeListView extends ListView {
         touchListener.setSwipeDrawableUnchecked(swipeDrawableUnchecked);
         setOnTouchListener(touchListener);
         setOnScrollListener(touchListener.makeScrollListener());
+    }
+
+    /**
+     * @param listView {@link SwipeListView} - The {@link SwipeListView}.
+     * @param frontView int - Front View resource id.
+     * @param backView int - Back View resource id.
+     * @return {@link SwipeListViewTouchListener} - A new {@link SwipeListViewTouchListener} instance.
+     */
+    protected SwipeListViewTouchListener createTouchListener(SwipeListView listView, int frontView, int backView) {
+        return new SwipeListViewTouchListener(listView, frontView, backView);
+    }
+
+    /**
+     * @return {@link SwipeListViewTouchListener} - The current touch listener.
+     */
+    protected SwipeListViewTouchListener getTouchListener() {
+        return touchListener;
     }
 
     /**
@@ -699,6 +718,21 @@ public class SwipeListView extends ListView {
      */
     public void closeOpenedItems() {
         touchListener.closeOpenedItems();
+    }
+
+    /**
+     * @return boolean - Whether or not the list can scroll up.
+     */
+    public boolean canListViewScrollUp() {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            // For ICS and above we can call canScrollVertically() to determine this
+            return canScrollVertically(-1);
+        } else {
+            // Pre-ICS we need to manually check the first visible item and the child view's top
+            // value
+            return getChildCount() > 0
+                    && (getFirstVisiblePosition() > 0 || getChildAt(0).getTop() < getPaddingTop());
+        }
     }
 
 }

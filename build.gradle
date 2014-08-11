@@ -4,12 +4,13 @@ buildscript {
     version = VERSION_NAME
 
     repositories {
+        mavenCentral()
         maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
         maven { url "${System.env.HOME}/.m2/repository" }
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.android.tools.build:gradle:0.11.+'
         classpath 'com.github.dcendents:android-maven-plugin:1.0'
     }
 }
@@ -22,10 +23,9 @@ subprojects {
     apply plugin: 'android-library'
     apply plugin: 'android-maven'
 
-
     android {
         compileSdkVersion 19
-        buildToolsVersion '19.0.0'
+        buildToolsVersion '19.1.0'
 
         defaultConfig {
             targetSdkVersion 19
@@ -53,7 +53,7 @@ subprojects {
         repositories {
             mavenDeployer {
                 repository(url: 'http://clinker.47deg.com/nexus/content/repositories/snapshots/') {
-                    authentication(userName: mavenDeployer, password: mavenDeployerPassword)
+                    authentication(userName: 'mavenDeployer', password: 'mavenDeployerPassword')
                 }
 
                 pom.project {
