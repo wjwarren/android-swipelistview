@@ -821,6 +821,9 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
             }
 
             case MotionEvent.ACTION_UP: {
+                // Fix for issue https://github.com/47deg/android-swipelistview/issues/41#issuecomment-45064712
+                view.onTouchEvent(motionEvent);
+
                 if (velocityTracker == null || !swiping || downPosition == ListView.INVALID_POSITION) {
                     break;
                 }
