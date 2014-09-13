@@ -641,6 +641,9 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
 
     private void resetCell() {
         if (downPosition != ListView.INVALID_POSITION) {
+            // Hack to fix issue https://github.com/47deg/android-swipelistview/issues/76
+            swipeListView.resetScrolling();
+
             if (swipeCurrentAction == SwipeListView.SWIPE_ACTION_CHOICE) {
                 backView.setVisibility(View.VISIBLE);
             }
