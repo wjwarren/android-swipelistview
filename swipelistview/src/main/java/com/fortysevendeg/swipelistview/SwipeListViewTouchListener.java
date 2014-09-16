@@ -198,6 +198,14 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
     }
 
     /**
+     * Updates the swiping flag.
+     * @param swiping boolean - Whether or not the user is swiping horizontally.
+     */
+    protected void setSwiping(boolean swiping) {
+        this.swiping = swiping;
+    }
+
+    /**
      * Sets animation time when the user drops the cell
      *
      * @param animationTime milliseconds
@@ -876,7 +884,7 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
 //                    frontView.setClickable(opened.get(downPosition));
 //                    frontView.setLongClickable(opened.get(downPosition));
 //                }
-                swiping = false;
+                setSwiping(false);
                 break;
             }
 
@@ -917,7 +925,7 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
                     }
                 }
                 if (deltaMode > slop && swipeCurrentAction == SwipeListView.SWIPE_ACTION_NONE && velocityY < velocityX) {
-                    swiping = true;
+                    setSwiping(true);
                     swipingRight = (deltaX > 0);
                     if(SwipeListView.DEBUG){
                         Log.d(SwipeListView.TAG, "deltaX: " + deltaX + " - swipingRight: " + swipingRight);
