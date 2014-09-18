@@ -55,6 +55,17 @@ public class SwipeRefreshListViewTouchListener extends SwipeListViewTouchListene
         };
     }
 
+    /** {@inheritDoc} */
+    @Override
+    protected void setSwiping(boolean swiping) {
+        super.setSwiping(swiping);
+
+        if (mRefreshSwipeListener != null) {
+            // TODO: Change method/property naming?
+            mRefreshSwipeListener.setScroll(swiping);
+        }
+    }
+
     /**
      * Stores a new {@link RefreshSwipeListener}.
      * @param listener {@link RefreshSwipeListener} - The listener to store.
