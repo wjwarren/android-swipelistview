@@ -341,21 +341,33 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
     }
 
     /**
-     * Open item
-     *
-     * @param position Position of list
+     * Open item.
+     * @param position int - Position of list.
      */
     protected void openAnimate(int position) {
-        openAnimate(swipeListView.getChildAt(position - swipeListView.getFirstVisiblePosition()).findViewById(swipeFrontView), position);
+        if (swipeListView == null) {
+            return;
+        }
+
+        View child = swipeListView.getChildAt(position - swipeListView.getFirstVisiblePosition());
+        if (child != null) {
+            openAnimate(child.findViewById(swipeFrontView), position);
+        }
     }
 
     /**
-     * Close item
-     *
-     * @param position Position of list
+     * Close item.
+     * @param position int - Position of list.
      */
     protected void closeAnimate(int position) {
-        closeAnimate(swipeListView.getChildAt(position - swipeListView.getFirstVisiblePosition()).findViewById(swipeFrontView), position);
+        if (swipeListView == null) {
+            return;
+        }
+
+        View child = swipeListView.getChildAt(position - swipeListView.getFirstVisiblePosition());
+        if (child != null) {
+            closeAnimate(child.findViewById(swipeFrontView), position);
+        }
     }
 
     /**
@@ -529,7 +541,7 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
      * @param position  Position of list
      */
     private void generateAnimate(final View view, final boolean swap, final boolean swapRight, final int position) {
-        if(SwipeListView.DEBUG){
+        if (SwipeListView.DEBUG) {
             Log.d(SwipeListView.TAG, "swap: " + swap + " - swapRight: " + swapRight + " - position: " + position);
         }
         if (swipeCurrentAction == SwipeListView.SWIPE_ACTION_REVEAL) {
