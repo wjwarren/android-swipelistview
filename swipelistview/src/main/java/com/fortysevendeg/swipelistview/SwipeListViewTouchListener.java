@@ -136,11 +136,14 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
     }
 
     /**
-     * Sets current item's front view
-     *
+     * Sets current item's front view.
      * @param frontView Front view
      */
     private void setFrontView(View frontView) {
+        if (frontView == null) {
+            return;
+        }
+
         this.frontView = frontView;
         frontView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,11 +165,14 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
     }
 
     /**
-     * Set current item's back view
-     *
-     * @param backView
+     * Set current item's back view.
+     * @param backView Back View.
      */
     private void setBackView(View backView) {
+        if (backView == null) {
+            return;
+        }
+
         this.backView = backView;
         backView.setOnClickListener(new View.OnClickListener() {
             @Override
