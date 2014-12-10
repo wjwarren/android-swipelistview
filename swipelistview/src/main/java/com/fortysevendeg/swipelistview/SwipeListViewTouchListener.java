@@ -139,7 +139,7 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
      * Sets current item's front view.
      * @param frontView Front view
      */
-    private void setFrontView(View frontView) {
+    private void setFrontView(View frontView, final int childPosition) {
         if (frontView == null) {
             return;
         }
@@ -151,18 +151,22 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
                 swipeListView.onClickFrontView(downPosition);
             }
         });
-        if (swipeOpenOnLongPress) {
-            frontView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if(downPosition >= 0){
-                        openAnimate(downPosition);
+
+        frontView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (swipeOpenOnLongPress) {
+                    if (downPosition >= 0) {
+                        openAnimate(childPosition);
                     }
-                    return false;
+                } else {
+                    swapChoiceState(childPosition);
                 }
-            });
-        }
-    }
+                return false;
+            }
+
+        });
+}
 
     /**
      * Set current item's back view.
@@ -355,9 +359,10 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
             return;
         }
 
-        View child = swipeListView.getChildAt(position - swipeListView.getFirstVisiblePosition());
+        final View child = swipeListView.getChildAt(position - swipeListView.getFirstVisiblePosition()).findViewById(swipeFrontView);
+
         if (child != null) {
-            openAnimate(child.findViewById(swipeFrontView), position);
+            openAnimate(child, position);
         }
     }
 
@@ -366,13 +371,16 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
      * @param position int - Position of list.
      */
     protected void closeAnimate(int position) {
-        if (swipeListView == null) {
-            return;
-        }
+        if (swipeListView != null) {
+            int firstVisibleChildPosition = swipeListView.getFirstVisiblePosition();
+            final View childContainer = swipeListView.getChildAt(position - firstVisibleChildPosition);
+            if (childContainer != null) {
+                final View child = childContainer.findViewById(swipeFrontView);
 
-        View child = swipeListView.getChildAt(position - swipeListView.getFirstVisiblePosition());
-        if (child != null) {
-            closeAnimate(child.findViewById(swipeFrontView), position);
+                if (child != null) {
+                    closeAnimate(child, position);
+                }
+            }
         }
     }
 
@@ -649,6 +657,10 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
+                        if (animation != null) {
+                            animation.removeListener(this);
+                        }
+
                         swipeListView.resetScrolling();
                         if (swap) {
                             boolean aux = !opened.get(position);
@@ -826,7 +838,7 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
 
                     if (allowSwipe && rect.contains(x, y)) {
                         setParentView(child);
-                        setFrontView(child.findViewById(swipeFrontView));
+                        setFrontView(child.findViewById(swipeFrontView), childPosition);
 
                         downX = motionEvent.getRawX();
                         downPosition = childPosition;
