@@ -1,3 +1,7 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.2.1"
+}
+
 buildscript {
 
     group = GROUP
@@ -10,8 +14,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.11.+'
-        classpath 'com.github.dcendents:android-maven-plugin:1.0'
+        classpath 'com.android.tools.build:gradle:1.0.+'
+        classpath 'com.github.dcendents:android-maven-plugin:1.2'
     }
 }
 
@@ -24,11 +28,11 @@ subprojects {
     apply plugin: 'android-maven'
 
     android {
-        compileSdkVersion 19
+        compileSdkVersion 21
         buildToolsVersion '19.1.0'
 
         defaultConfig {
-            targetSdkVersion 19
+            targetSdkVersion 21
         }
 
         lintOptions {
