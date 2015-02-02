@@ -247,7 +247,7 @@ public class SwipeListView extends ListView {
     /**
      * @return {@link SwipeListViewTouchListener} - The current touch listener.
      */
-    protected SwipeListViewTouchListener getTouchListener() {
+    public SwipeListViewTouchListener getTouchListener() {
         return touchListener;
     }
 

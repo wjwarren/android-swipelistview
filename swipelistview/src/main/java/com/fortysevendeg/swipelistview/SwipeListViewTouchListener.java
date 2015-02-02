@@ -166,7 +166,14 @@ public class SwipeListViewTouchListener implements View.OnTouchListener {
             }
 
         });
-}
+    }
+
+    /**
+     * @return {@link View} - The current item's back(side) View.
+     */
+    public View getBackView() {
+        return backView;
+    }
 
     /**
      * Set current item's back view.
